@@ -49,6 +49,44 @@ docker-compose up -d
 ```
 The service will be available at `http://localhost:3000`.
 
+### Installation
+
+The service is available as a Docker image from GitHub Container Registry:
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/condat/hyperformula-web-service:latest
+
+# Run with environment variables
+docker run -d \
+  --name hyperformula-service \
+  -p 3000:3000 \
+  -e API_KEY=your-production-api-key \
+  -e PORT=3000 \
+  -e WORKER_THREADS=4 \
+  ghcr.io/condat/hyperformula-web-service:latest
+```
+
+**Or using Docker Compose:**
+Create a `docker-compose.yml`:
+```yaml
+services:
+  hyperformula:
+    image: ghcr.io/condat/hyperformula-web-service:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - API_KEY=your-production-api-key
+      - PORT=3000
+      - WORKER_THREADS=4
+    restart: unless-stopped
+```
+
+Then run:
+```bash
+docker-compose up -d
+```
+
 ---
 
 ## 📖 API Documentation

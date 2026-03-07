@@ -8,7 +8,7 @@ export const CalculateRequestSchema = z.object({
     formula: z.string().min(1).describe('Excel-like formula. Use #variable syntax to reference variables (e.g., `#Price * #Quantity`).'),
     variables: z.record(ValidVariableName, z.union([z.string(), z.number(), z.boolean()])).optional().describe('Key-Value map of variables used in the formula.'),
     lookupTables: z.record(z.string(), z.array(z.array(z.union([z.string(), z.number(), z.boolean(), z.null()])))).optional().describe('Named tables for VLOOKUP operations'),
-});
+}).describe('Request to calculate a formula. Example: `IF(#Age >= 18, "Adult", "Minor")` with variables `{Age: 25}`');
 
 export const CalculateResponseSchema = z.object({
     status: z.enum(['success', 'error']),

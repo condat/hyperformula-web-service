@@ -17,7 +17,8 @@ export const swaggerConfig = {
         security: [{apiKey: []}],
         tags: [
             {name: 'Calculation', description: 'Core calculation endpoints'},
-            {name: 'System', description: 'Health and status checks'}
+            {name: 'System', description: 'Health and status checks'},
+            {name: 'Metadata', description: 'API metadata endpoints'}
         ]
     }
 };

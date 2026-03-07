@@ -272,3 +272,122 @@ describe('POST /calculate', () => {
         expect(body.errorType).toBe('RESOURCE_LIMIT');
     });
 });
+
+
+describe('GET /methods', () => {
+    let app;
+
+    beforeAll(async () => {
+        app = await buildApp({logger: false});
+        await app.ready();
+    });
+
+    afterAll(async () => {
+        await app.close();
+    });
+
+    it('should return 401 if no API key is provided', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/methods'
+        });
+
+        expect(response.statusCode).toBe(401);
+        const body = JSON.parse(response.body);
+        expect(body.errorType).toBe('UNAUTHORIZED');
+    });
+
+    it('should return a list of available methods', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/methods',
+            headers: {'X-API-Key': API_KEY}
+        });
+
+        expect(response.statusCode).toBe(200);
+        const body = JSON.parse(response.body);
+        expect(body.status).toBe('success');
+        expect(body.methods).toBeDefined();
+        expect(Array.isArray(body.methods)).toBe(true);
+        expect(body.count).toBeGreaterThan(300);
+        expect(body.categories).toBeDefined();
+        expect(Array.isArray(body.categories)).toBe(true);
+    });
+
+    it('should include common functions like IF, SUM, and VLOOKUP', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/methods',
+            headers: {'X-API-Key': API_KEY}
+        });
+
+        expect(response.statusCode).toBe(200);
+        const body = JSON.parse(response.body);
+        const methodNames = body.methods.map(m => m.name);
+        
+        expect(methodNames).toContain('IF');
+        expect(methodNames).toContain('SUM');
+        expect(methodNames).toContain('VLOOKUP');
+        expect(methodNames).toContain('AVERAGE');
+        expect(methodNames).toContain('TODAY');
+    });
+
+    it('should return method details with correct structure', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/methods',
+            headers: {'X-API-Key': API_KEY}
+        });
+
+        expect(response.statusCode).toBe(200);
+        const body = JSON.parse(response.body);
+        
+        // Check that methods have required fields
+        const ifMethod = body.methods.find(m => m.name === 'IF');
+        expect(ifMethod).toBeDefined();
+        expect(ifMethod.category).toBeDefined();
+        expect(ifMethod.description).toBeDefined();
+        expect(ifMethod.syntax).toBeDefined();
+        expect(Array.isArray(ifMethod.parameters)).toBe(true);
+        expect(Array.isArray(ifMethod.examples)).toBe(true);
+    });
+
+    it('should categorize methods correctly', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/methods',
+            headers: {'X-API-Key': API_KEY}
+        });
+
+        expect(response.statusCode).toBe(200);
+        const body = JSON.parse(response.body);
+        
+        const ifMethod = body.methods.find(m => m.name === 'IF');
+        expect(ifMethod.category).toBe('Logical');
+        
+        const sumMethod = body.methods.find(m => m.name === 'SUM');
+        expect(sumMethod.category).toBe('Math');
+        
+        const vlookupMethod = body.methods.find(m => m.name === 'VLOOKUP');
+        expect(vlookupMethod.category).toBe('Lookup & Reference');
+    });
+
+    it('should provide examples for common functions', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: '/methods',
+            headers: {'X-API-Key': API_KEY}
+        });
+
+        expect(response.statusCode).toBe(200);
+        const body = JSON.parse(response.body);
+        
+        const ifMethod = body.methods.find(m => m.name === 'IF');
+        expect(ifMethod.examples.length).toBeGreaterThan(0);
+        expect(ifMethod.examples.some(ex => ex.includes('IF('))).toBe(true);
+        
+        const sumMethod = body.methods.find(m => m.name === 'SUM');
+        expect(sumMethod.examples.length).toBeGreaterThan(0);
+        expect(sumMethod.examples.some(ex => ex.includes('SUM('))).toBe(true);
+    });
+});

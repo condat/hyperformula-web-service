@@ -7,6 +7,7 @@ import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod
 import workerPoolPlugin from './plugins/worker-pool.js';
 import calculateRoute from './routes/calculate/index.js';
 import { swaggerConfig } from './config/swagger.js';
+import methodsRoute from './routes/methods/index.js';
 
 export async function buildApp(options = {}) {
     const app = Fastify({
@@ -62,6 +63,7 @@ export async function buildApp(options = {}) {
     }));
 
     await app.register(calculateRoute, { prefix: '/calculate' });
+    await app.register(methodsRoute, { prefix: '/methods' });
     await app.register(fastifySwaggerUi, { routePrefix: '/documentation' });
 
     return app;

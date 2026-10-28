@@ -1,10 +1,10 @@
-FROM node:24-alpine AS builder
+FROM node:24-alpine3.24 AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY . .
 
-FROM node:24-alpine
+FROM node:24-alpine3.24
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
